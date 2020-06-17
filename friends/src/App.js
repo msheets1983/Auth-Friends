@@ -1,25 +1,60 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import Login from "./components/login";
+import FriendsList from "./components/FriendsList";
+import PrivateRoute from "./components/PrivateRoute";
+
+import "./App.css";
 
 function App() {
+  const loggedIn = () => {
+    if (localStorage.getItem("Logged in")) {
+      return localStorage.getItem("Logged in");
+    }
+    return false;
+  };
+  const [isLoggedIn, setIsLoggedIn] = useState(loggedIn());
+
+  const logOut = () => {
+    setIsLoggedIn(false);
+    localStorage.setItem("Logged in", false);
+    localStorage.removeItem("token");
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <div className="links">
+          <p>
+            {!isLoggedIn ? (
+              <Link to="/login">Log in</Link>
+            ) : (
+              <Link to="/login">
+                <span onClick={logOut}>Log out</span>
+              </Link>
+            )}
+          </p>
+          <p>
+            <Link to="/friends"> Friends List</Link>
+          </p>
+        </div>
+
+        <Switch>
+          <PrivateRoute exact path="/friends" component={FriendsList} />
+          <Route
+            path="/login"
+            render={(props) => (
+              <Login {...props} setIsLoggedIn={setIsLoggedIn} />
+            )}
+          />
+          <Route
+            render={(props) => (
+              <Login {...props} setIsLoggedIn={setIsLoggedIn} />
+            )}
+          />
+        </Switch>
+      </div>
+    </Router>
   );
 }
 
